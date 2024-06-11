@@ -1,5 +1,5 @@
 <?php
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 class User {
     private $conn;
@@ -16,7 +16,7 @@ class User {
 
     // Fonction pour créer un utilisateur
     public function create() {
-        $query = "INSERT INTO " . $this->table_name . " (username, email, password) VALUES (:username, :email, :password_hash)";
+        $query = "INSERT INTO " . $this->table_name . " (username, email, password) VALUES (:username, :email, :password)";
 
         $stmt = $this->conn->prepare($query);
 
@@ -28,7 +28,7 @@ class User {
         // Liaison des valeurs
         $stmt->bindParam(':username', $this->username);
         $stmt->bindParam(':email', $this->email);
-        $stmt->bindParam(':password_hash', $this->password);
+        $stmt->bindParam(':password', $this->password);
 
         if ($stmt->execute()) {
             return true;

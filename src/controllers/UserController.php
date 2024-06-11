@@ -1,14 +1,13 @@
 <?php
-require_once '../models/User.php';
-require_once '../config/database.php';
+require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../config/database.php';
+
 
 class UserController {
     private $db;
     private $user;
 
     public function __construct() {
-        $database = new Database();
-        $this->db = $database->getConnection();
         $this->user = new User($this->db);
     }
 
