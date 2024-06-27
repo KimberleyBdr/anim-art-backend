@@ -11,6 +11,11 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization');
 
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
+
 $action = isset($_GET['action']) ? $_GET['action'] : die(json_encode(["message" => "No action specified."]));
 
 switch ($action) {
@@ -22,7 +27,7 @@ switch ($action) {
     case 'createUser':
         $controller = new UserController();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = json_decode(file_get_contents("php://input"));
+            $data = json_decode(file_get_contents('php://input'));
             echo $controller->createUser($data->username, $data->email, $data->password);
         }
         break;
@@ -31,6 +36,14 @@ switch ($action) {
         $controller = new UserController();
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             echo $controller->getAllUsers();
+        }
+        break;
+
+    case 'login':
+        $controller = new UserController();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = json_decode(file_get_contents("php://input"));
+            echo $controller->login($data->email, $data->password);
         }
         break;
 

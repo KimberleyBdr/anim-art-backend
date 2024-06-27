@@ -1,17 +1,18 @@
-<?php
-require_once __DIR__ . '/../models/User.php';
-require_once __DIR__ . '/../config/database.php';
 
+<?php
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../models/User.php';
 
 class UserController {
     private $db;
     private $user;
 
     public function __construct() {
+        $database = new Database();
+        $this->db = $database->getConnection();
         $this->user = new User($this->db);
     }
 
-    // Fonction pour créer un utilisateur
     public function createUser($username, $email, $password) {
         $this->user->username = $username;
         $this->user->email = $email;
@@ -24,12 +25,20 @@ class UserController {
         }
     }
 
-    // Fonction pour obtenir tous les utilisateurs
     public function getAllUsers() {
         $stmt = $this->user->readAll();
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         return json_encode($users);
+    }
+
+    public function login($email, $password) {
+        $user = $this->user->findByEmail($email);
+        if ($user && password_verify($password, $user['password'])) {
+            return json_encode(["status" => "success", "message" => "Login successful!"]);
+        } else {
+            return json_encode(["status" => "error", "message" => "Invalid email or password."]);
+        }
     }
 }
 ?>
