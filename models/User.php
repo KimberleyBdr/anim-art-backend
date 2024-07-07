@@ -1,9 +1,20 @@
 <?php
 class User {
-    private $db;
+    private $conn;
+    private $table_name = "users";
 
     public function __construct($db) {
-        $this->db = $db;
+        $this->conn = $db;
+    }
+
+    // Méthode pour trouver un utilisateur par email
+    public function findByEmail($email) {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE email = ? LIMIT 0,1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $email);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function login($email, $password) {
@@ -31,3 +42,4 @@ class User {
     }
 }
 ?>
+
