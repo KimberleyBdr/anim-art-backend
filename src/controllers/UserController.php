@@ -1,44 +1,54 @@
-
 <?php
-require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../models/User.php';
 
 class UserController {
     private $db;
-    private $user;
 
-    public function __construct() {
-        $database = new Database();
-        $this->db = $database->getConnection();
-        $this->user = new User($this->db);
+    public function __construct($db) {
+        $this->db = $db;
     }
 
-    public function createUser($username, $email, $password) {
-        $this->user->username = $username;
-        $this->user->email = $email;
-        $this->user->password = password_hash($password, PASSWORD_BCRYPT);
+    public function checkSession() {
+        session_start();
 
-        if ($this->user->create()) {
-            return json_encode(["message" => "User created successfully."]);
+        if(isset($_SESSION['user'])) {
+            $user = $_SESSION['user'];
+            $userData = [
+                'username' => $user['username'],
+                'email' => $user['email']
+            ];
+
+            echo json_encode(['authenticated' => true, 'user' => $userData]);
         } else {
-            return json_encode(["message" => "User could not be created."]);
+            echo json_encode(['authenticated' => false]);
         }
-    }
-
-    public function getAllUsers() {
-        $stmt = $this->user->readAll();
-        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return json_encode($users);
     }
 
     public function login($email, $password) {
-        $user = $this->user->findByEmail($email);
-        if ($user && password_verify($password, $user['password'])) {
-            return json_encode(["status" => "success", "message" => "Login successful!"]);
-        } else {
-            return json_encode(["status" => "error", "message" => "Invalid email or password."]);
-        }
+        $user = new User($this->db);
+        return $user->login($email, $password);
     }
+}
+
+// Exemple de connexion PDO
+$db = new PDO('mysql:host=localhost;dbname=anim_art', 'root', '');
+$controller = new UserController($db);
+
+// Vérifiez le type de requête
+if($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $action = isset($_GET['action']) ? $_GET['action'] : die(json_encode(["message" => "No action specified."]));
+
+    switch ($action) {
+        case 'checkSession':
+            $controller->checkSession();
+            break;
+        default:
+            echo json_encode(["message" => "Invalid action."]);
+            break;
+    }
+} elseif($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Pour les actions POST comme login, assurez-vous de gérer cela correctement dans votre application frontend
+    $data = json_decode(file_get_contents("php://input"));
+    echo $controller->login($data->email, $data->password);
 }
 ?>
