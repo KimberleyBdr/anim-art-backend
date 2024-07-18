@@ -25,6 +25,23 @@ switch ($action) {
         }
         break;
 
+        case 'register':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(file_get_contents('php://input'), true);
+                $email = $data['email'] ?? '';
+                $password = $data['password'] ?? '';
+                $confirmPassword = $data['confirmPassword'] ?? '';
+            
+                if ($password !== $confirmPassword) {
+                    echo json_encode(['success' => false, 'message' => 'Les mots de passe ne correspondent pas.']);
+                    exit;
+                }
+            
+                $controller = new UserController();
+                echo $controller->register($email, $password);
+            }
+            break;
+
     case 'checkSession':
         $controller = new UserController();
         echo $controller->checkSession();

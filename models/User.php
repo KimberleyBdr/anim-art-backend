@@ -16,6 +16,31 @@ class User {
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    
+    // Méthode pour vérifier si l'email existe
+    public function emailExists($email) {
+        $query = "SELECT id FROM " . $this->table_name . " WHERE email = ? LIMIT 0,1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $email);
+        $stmt->execute();
+        
+        if ($stmt->rowCount() > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // Méthode pour enregistrer un nouvel utilisateur
+    public function registerUser($email, $passwordHash) {
+        $query = "INSERT INTO " . $this->table_name . " (email, password) VALUES (?, ?)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $email);
+        $stmt->bindParam(2, $passwordHash);
+        return $stmt->execute();
+    }
+    
+       
 
     public function login($email, $password) {
         $query = "SELECT * FROM users WHERE email = :email";

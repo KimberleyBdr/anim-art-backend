@@ -35,6 +35,25 @@ class UserController {
             echo json_encode(['authenticated' => false]);
         }
     }
+
+    public function register($email, $password) {
+        $userExists = $this->user->findByEmail($email);
+
+        if ($userExists) {
+            echo json_encode(['success' => false, 'message' => 'E-mail déjà utilisé.']);
+            return;
+        }
+
+        $passwordHash = password_hash($password, PASSWORD_BCRYPT);
+        $registrationSuccessful = $this->user->registerUser($email, $passwordHash);
+
+        if ($registrationSuccessful) {
+            echo json_encode(['success' => true, 'message' => 'Inscription réussie.']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Une erreur est survenue lors de l\'inscription.']);
+        }
+    }
+        
 }
 ?>
 
