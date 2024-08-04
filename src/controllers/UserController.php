@@ -14,14 +14,18 @@ class UserController {
     public function login($email, $password) {
         $user = $this->user->findByEmail($email);
 
-        if ($user && password_verify($password, $user['password'])) {
-            if (session_status() == PHP_SESSION_NONE) {
-                session_start();
+        if ($user) {
+            if (password_verify($password, $user['password'])) {
+                if (session_status() == PHP_SESSION_NONE) {
+                    session_start();
+                }
+                $_SESSION['user'] = $user; // Stocke toutes les informations utilisateur
+                return json_encode(['authenticated' => true, 'user' => $_SESSION['user']]);
+            } else {
+                return json_encode(['authenticated' => false, 'message' => 'Invalid credentials.']);
             }
-            $_SESSION['user_id'] = $user['id'];
-            echo json_encode(['authenticated' => true]);
         } else {
-            echo json_encode(['authenticated' => false]);
+            return json_encode(['authenticated' => false, 'message' => 'User not found.']);
         }
     }
 
@@ -30,9 +34,14 @@ class UserController {
             session_start();
         }
         if (isset($_SESSION['user_id'])) {
-            echo json_encode(['authenticated' => true]);
+            // L'utilisateur est authentifié, renvoyez les informations de l'utilisateur
+            return json_encode([
+                'authenticated' => true,
+                'user' => $_SESSION['user_id'] // Assurez-vous que $_SESSION['user'] contient les informations nécessaires, y compris l'ID
+            ]);
         } else {
-            echo json_encode(['authenticated' => false]);
+            // L'utilisateur n'est pas authentifié
+            return json_encode(['authenticated' => false]);
         }
     }
 
@@ -53,7 +62,18 @@ class UserController {
             echo json_encode(['success' => false, 'message' => 'Une erreur est survenue lors de l\'inscription.']);
         }
     }
-        
+    
+
+    public function profil($id) {
+        // Utilisez la méthode findByID du modèle User
+        $user = $this->user->findByID($id);
+        if (!$user) {
+            return json_encode(['error' => 'User not found']);
+        }
+
+        return json_encode($user);
+    }
+    
 }
 ?>
 

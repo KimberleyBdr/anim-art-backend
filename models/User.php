@@ -16,6 +16,15 @@ class User {
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function findByID($id) {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $id);
+        $stmt->execute();
+    
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }    
     
     // Méthode pour vérifier si l'email existe
     public function emailExists($email) {
@@ -44,27 +53,14 @@ class User {
 
     public function login($email, $password) {
         $query = "SELECT * FROM users WHERE email = :email";
-        $stmt = $this->db->prepare($query);
+        $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':email', $email);
         $stmt->execute();
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if($user) {
-            if(password_verify($password, $user['password'])) {
-                session_start();
-                $_SESSION['user'] = [
-                    'id' => $user['id'],
-                    'username' => $user['username'],
-                    'email' => $user['email']
-                ];
-                return json_encode(['authenticated' => true, 'user' => $_SESSION['user']]);
-            } else {
-                return json_encode(['authenticated' => false, 'message' => 'Invalid credentials.']);
-            }
-        } else {
-            return json_encode(['authenticated' => false, 'message' => 'User not found.']);
-        }
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    
     }
+        
+    
 }
 ?>
 
