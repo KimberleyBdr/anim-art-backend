@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/../src/controllers/DatabaseController.php';
 require_once __DIR__ . '/../src/controllers/UserController.php';
 
-header('Access-Control-Allow-Origin: http://localhost:3001'); // Origine de votre application frontale
+header('Access-Control-Allow-Origin: http://localhost:3000'); // Origine de votre application frontale
 header('Content-Type: application/json');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization');
